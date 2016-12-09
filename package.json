@@ -9,7 +9,7 @@
     "start": "node ./app/index.js"
   },
   "repository": {
-    "type": "git",
+    "type": "git"
   },
   "author": "",
   "license": "ISC",
