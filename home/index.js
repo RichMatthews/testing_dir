@@ -10,19 +10,15 @@ class ReactApp extends React.Component{
   constructor() {
     super();
     this.state = {
-      name: '',
       capturedDeck: this.shuffleDeck(),
       playersOverallTotal: 0,
       dealersOverallTotal: 0,
       playersDeck: [],
       dealersDeck: [],
-      playerBusted: false
+      resultOutcome: '',
+      revealCards: false
     }
   }
-
-  componentDidMount = () => {
-
-  };
 
   buildDeck = () => {
     let suit = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
@@ -98,20 +94,20 @@ class ReactApp extends React.Component{
     for (var i=0; i < playersDeck.length; i++){
       playersDeckTotal.push(playersDeck[i].rankValue)
     }
-
     let total = playersDeckTotal.reduce(function(a, b) {
         return a + b;
       },
     0);
-
-    this.setState({playersOverallTotal: total});
-    this.dealerTwisted();
+    this.setState({playersOverallTotal: total}, () => {
+      this.dealerTwisted();
+    });
   };
 
   handleClickTwist = () => {
     this.dealToPlayer();
     this.forceUpdate();
     let playersDeck = this.state.playersDeck;
+    let playersTotal = this.state.playersOverallTotal;
     let playersDeckTotal = [];
       for (var i=0; i < playersDeck.length; i++){
         playersDeckTotal.push(playersDeck[i].rankValue)
@@ -120,29 +116,37 @@ class ReactApp extends React.Component{
         return a + b;
       },
     0);
-    this.setState({ playersOverallTotal: total }, () => {
-      this.playerTwisted();
-    });
+    playersTotal = total;
+    this.playerTwisted(playersTotal);
   };
 
-  playerTwisted = () => {
-    console.log(this.state.playersOverallTotal, 'total');
-    if(this.state.playersOverallTotal > 21){
-      console.log('bust');
-      console.log('dealer wins!');
-      this.setState({playerBusted: true});
+  playerTwisted = (playersTotal) => {
+    if(playersTotal > 21){
+      this.setState({resultOutcome: 'dealer wins!'});
     }
-    else {
-      console.log('no bust');
-    }
+    this.revealCards();
   };
+
+  revealCards = () => {
+    this.setState({revealCards: true})
+  }
+
+  newGame = () => {
+    this.setState({dealersDeck: []})
+    this.setState({playersDeck: []})
+    this.setState({dealersOverallTotal: 0})
+    this.setState({playersOverallTotal: 0})
+    this.setState({resultOutcome: ''})
+  }
 
   dealerTwisted = () => {
     let dealersTotal = this.state.dealersOverallTotal;
+    let playersTotal = this.state.playersOverallTotal;
     let looping = true;
+    let outcome = '';
     while(looping){
       if(dealersTotal < 17){
-        this.deal2Dealer();
+        this.dealToDealer();
         let dealersDeck = this.state.dealersDeck;
         let newDealersDeckTotal = [];
         for (var i=0; i < dealersDeck.length; i++){
@@ -152,105 +156,57 @@ class ReactApp extends React.Component{
           return a + b;
         },
         0);
-        console.log(total, 'tot');
         dealersTotal = total;
-        console.log(dealersTotal, 'dt');
       }
       else {
-        console.log('logging as greater than 17');
-        console.log(dealersTotal, 'dealers total');
-        console.log(this.state.playersOverallTotal, 'players total');
         if(dealersTotal > 21){
-          console.log('bust');
-          console.log('player wins');
-          break;
+          outcome = 'player wins!';
         }
-        else if(this.state.playersOverallTotal > dealersTotal){
-          console.log('player wins!');
-          looping = false;
-          break;
+        else if(playersTotal > dealersTotal){
+          outcome = 'player wins!';
         }
-        else if (this.state.playersOverallTotal > dealersTotal){
-          console.log('its a tie!');
-          looping = false;
-          break;
+        else if (playersTotal == dealersTotal){
+          outcome = 'tie!';
         }
-        else {
-          console.log('dealer wins!');
-          looping = false;
-          break;
+        else if (dealersTotal > playersTotal){
+          outcome = 'dealer wins!';
         }
+        looping = false;
       }
     }
-  };
-
-  deal2Player = () => {
-    this.dealToPlayer();
-    this.forceUpdate();
-  };
-
-  deal2Dealer = () => {
-    this.dealToDealer();
-  };
-
-  shouldComponentUpdate = () => {
-    return false;
+    this.setState({resultOutcome: outcome})
   };
 
   render(){
     return (
       <div>
-      {!this.state.playerBusted
-        ?
-        <div>
+        Player:
+          <div>
+          {this.state.playersDeck.map(function(card, index){
+            return <span key={ index }> {card.rankKey}{card.suit} </span>;
+          }, this)}
+          </div>
+        Player Total: {this.state.playersOverallTotal}
+        <button onClick={this.handleClickStick.bind(this)}>Stick</button>
+        <button onClick={this.handleClickTwist.bind(this)}>Twist</button>
+        <button onClick={this.dealToPlayer.bind(this)}>Deal 2 Player</button>
+        <button onClick={this.dealToDealer.bind(this)}>Deal 2 Dealer</button>
+        <button onClick={this.newGame.bind(this)}>New Game</button>
+        <br />
+        Dealer:
           <br />
-          Player:
-          <br />
-          {this.state.playersDeck[0] ? this.state.playersDeck[0].rankKey : null }
-          {this.state.playersDeck[0] ? this.state.playersDeck[0].suit : null }
-          {' '}
-          {this.state.playersDeck[1] ? this.state.playersDeck[1].rankKey : null }
-          {this.state.playersDeck[1] ? this.state.playersDeck[1].suit : null }
-          {' '}
-          {this.state.playersDeck[2] ? this.state.playersDeck[2].rankKey : null }
-          {this.state.playersDeck[2] ? this.state.playersDeck[2].suit : null }
-          {' '}
-          {this.state.playersDeck[3] ? this.state.playersDeck[3].rankKey : null }
-          {this.state.playersDeck[3] ? this.state.playersDeck[3].suit : null }
-          <br />
-          Player Total: {this.state.playersOverallTotal}
-          <button onClick={this.handleClickStick.bind(this)}>Stick</button>
-          <button onClick={this.handleClickTwist.bind(this)}>Twist</button>
-          <button onClick={this.deal2Player.bind(this)}>player</button>
-          <button onClick={this.deal2Dealer.bind(this)}>dealer</button>
-          <br />
-          Dealer:
-          <br />
-          {this.state.dealersDeck[0] ? this.state.dealersDeck[0].rankKey : null }
-          {this.state.dealersDeck[0] ? this.state.dealersDeck[0].suit : null }
-          {' '}
-          {this.state.dealersDeck[1] ? '-' : null }
-          {' '}
-          {this.state.dealersDeck[1] ? '-' : null }
-          {' '}
-          {this.state.dealersDeck[2] ? this.state.dealersDeck[2].rankKey : null }
-          {this.state.dealersDeck[2] ? this.state.dealersDeck[2].suit : null }
-          {' '}
-          {this.state.dealersDeck[3] ? this.state.dealersDeck[3].rankKey : null }
-          {this.state.dealersDeck[3] ? this.state.dealersDeck[3].suit : null }
-          <br />
-          Dealer Total: {this.state.dealersOverallTotal}
-        </div>
-        :
-        <div>
-          Busted!
-        </div>
-      }
-    </div>
+            <div>
+            {this.state.dealersDeck.map(function(card, index){
+              return <span key={ index }> {card.rankKey}{card.suit} </span>;
+            }, this)}
+            </div>
+        Result: {this.state.resultOutcome}
+        <br />
+        Cards Left : {this.state.capturedDeck.length}
+      </div>
   )
  }
 };
-
 
   ReactDOM.render(
     <ReactApp />, document.getElementById('content')
