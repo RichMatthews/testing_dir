@@ -5,5 +5,5 @@
 `npm i` <br />
 `npm start` <br />
 in duplicate iterm tab > `npm run watch` <br />
-go to localhost:8080 <br />
+go to [localhost:8080](http://localhost:8080/) <br />
 Working! <br />
