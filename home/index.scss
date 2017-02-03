@@ -1,36 +1,3 @@
 body {
 	font-family: verdana;
 }
-
-.cardFormatDH {
-	width: 40px;
-	height: 75px;
-	padding: 5px;
-  border: 1px solid black;
-  font-size: 30px;
-  color: red;
-	padding-bottom: 20px;
-	display: inline-block;
-	margin-right: 5px;
-}
-
-.cardFormatCS {
-	width: 40px;
-	height: 75px;
-	padding: 5px;
-  border: 1px solid black;
-  font-size: 30px;
-	color: black;
-	padding-bottom: 20px;
-	display: inline-block;
-	margin-right: 5px;
-}
-
-#scores {
-	color: green;
-	font-size: 50px;
-}
-
-#outcome {
-	color: blue;
-}
