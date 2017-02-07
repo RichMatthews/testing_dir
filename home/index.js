@@ -4,20 +4,13 @@ import './index.scss';
 
 class ReactApp extends React.Component{
 
-  constructor() {
-    super();
-    this.state = {
-    }
-  }
 
   render(){
     return (
-      <div>
+       <div>
         Working!!
-      </div>
-    )
-  }
-};
+        <div>
+      )
 
   ReactDOM.render(
     <ReactApp />, document.getElementById('content')
